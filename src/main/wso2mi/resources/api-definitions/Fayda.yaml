@@ -1,0 +1,22 @@
+openapi: 3.0.1
+info:
+  title: FaydaHarmonizationAPI
+  description: API Definition of Fayda
+  version: 1.0.0
+servers:
+- url: http://localhost:8290/faydaharmonizationapi
+- url: https://localhost:8253/faydaharmonizationapi
+paths:
+  /harmonization-status/{userId}:
+    get:
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        default:
+          description: Default response

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api xmlns="http://ws.apache.org/ns/synapse"
+     name="FaydaHarmonizationAPI"
+     context="/faydaharmonizationapi">
+
+    <resource methods="GET" uri-template="/harmonization-status/{userId}">
+        <inSequence>
+            <property name="Account_Number"
+                expression="get-property('uri.var.userId')"
+                scope="default"
+                type="STRING" />
+            <payloadFactory media-type="xml" template-type="default">
+
+                <format><soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                        xmlns:fay="http://temenos.com/FAYDATOKENS">
+                        <soapenv:Header />
+                        <soapenv:Body>
+                            <fay:FAYDATOK>
+                                <WebRequestCommon  xmlns="">
+                                    <company>ET0010001</company>
+                                    <password>123456</password>
+                                    <userName>SAMUELBM</userName>
+                                </WebRequestCommon>
+                                <DDT1Type xmlns="">
+                                    <enquiryInputCollection>
+                                        <columnName>@ID</columnName>
+                                        <criteriaValue>$1</criteriaValue>
+                                        <operand>EQ</operand>
+                                    </enquiryInputCollection>
+                                </DDT1Type>
+                            </fay:FAYDATOK>
+                        </soapenv:Body>
+                    </soapenv:Envelope></format>
+                <args>
+                    <arg expression="get-property('Account_Number')" />
+                </args>
+            </payloadFactory>
+            <property name="messageType" scope="axis2" type="STRING" value="text/xml" />
+            <log level="full" />
+            <call>
+                <endpoint key="fayda" />
+
+            </call>
+<property name="messageType" scope="axis2" type="STRING" value="text/xml" />
+            <log level="full"/>
+                        <property name="Token"
+          expression="//ns2:TOKEN/text()"
+          xmlns:ns2="http://temenos.com/DDT1"
+          scope="default"
+          type="STRING"/>
+
+<filter xpath="string-length(get-property('Token')) > 0">
+    <then>
+        <payloadFactory media-type="json">
+            <format>{"harmonized": true}</format>
+        </payloadFactory>
+    </then>
+    <else>
+        <payloadFactory media-type="json">
+            <format>
+                { "harmonized": false, "redirectUrl":
+                "https://fayda.example.com/harmonize" }
+            </format>
+        </payloadFactory>
+    </else>
+</filter>
+
+            <respond/>
+        </inSequence>
+
+        <faultSequence>
+    <log level="full">
+        <property name="ERROR_MESSAGE" expression="get-property('ERROR_MESSAGE')"/>
+        <property name="ERROR_CODE" expression="get-property('ERROR_CODE')"/>
+        <property name="ERROR_DETAIL" expression="get-property('ERROR_DETAIL')"/>
+            </log>
+
+    <payloadFactory media-type="json">
+        <format>
+                    { "error": "Unable to process request", "details": "$1" } </format>
+        <args>
+            <arg expression="get-property('ERROR_MESSAGE')"/>
+                </args>
+            </payloadFactory>
+
+    <respond/>
+        </faultSequence>
+
+    </resource>
+</api>

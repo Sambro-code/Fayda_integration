@@ -1,0 +1,10 @@
+---
+key: "Fayda-1.0.0"
+name : "Fayda"
+displayName : "Fayda"
+description: "Fayda"
+version: "1.0.0"
+serviceUrl: "https://{MI_HOST}:{MI_PORT}/fayda"
+definitionType: "OAS3"
+securityType: "BASIC"
+mutualSSLEnabled: false
